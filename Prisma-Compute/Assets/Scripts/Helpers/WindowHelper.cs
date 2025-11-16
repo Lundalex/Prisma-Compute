@@ -1,4 +1,3 @@
-// WindowHelper.cs
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -87,7 +86,11 @@ public static class WindowHelper
     public static void AutoFitWindows(IntPtr[] handles, int padding)
     {
         var list = new List<IntPtr>();
-        foreach (var h in handles) if (h != IntPtr.Zero && IsWindow(h) && IsWindowVisible(h)) list.Add(h);
+        foreach (var h in handles)
+        {
+            if (h != IntPtr.Zero && IsWindow(h))
+                list.Add(h);
+        }
         if (list.Count == 0) return;
 
         foreach (var h in list) MakeBorderless(h);

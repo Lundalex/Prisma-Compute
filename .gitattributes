@@ -1,0 +1,2 @@
+*.assets filter=lfs diff=lfs merge=lfs -text
+WorkerTemplate/Prisma[[:space:]]-[[:space:]]Fysiksimulering_Data/sharedassets1.assets filter=lfs diff=lfs merge=lfs -text
