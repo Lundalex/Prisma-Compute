@@ -30,4 +30,5 @@ MonoBehaviour:
           isIconRecursive: 0
           isColorRecursive: 0
   bookmarks: []
-  bookmarkedScenePaths: []
+  bookmarkedScenePaths:
+  - Assets/Scenes/WorkerManager.unity

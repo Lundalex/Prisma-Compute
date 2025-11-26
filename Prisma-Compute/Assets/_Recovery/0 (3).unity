@@ -167,7 +167,7 @@ MonoBehaviour:
   subfolder: WorkerTemplate
   outerFolder: 1
   openAsHost: 1
-  hideWindows: 1
+  hideWindows: 0
   instances: 3
   launchOnStart: 1
   padding: 0
