@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 public class WorkerManager : MonoBehaviour
@@ -27,15 +28,28 @@ public class WorkerManager : MonoBehaviour
         if (launchOnStart) LaunchAll();
     }
 
+    void Update()
+    {
+        if (_pids.Count == 0) return;
+
+        for (int i = _pids.Count - 1; i >= 0; i--)
+        {
+            int pid = _pids[i];
+            if (!IsProcessAlive(pid))
+            {
+                _pids.RemoveAt(i);
+                LaunchOne();
+            }
+        }
+    }
+
     void OnDestroy() => CloseAll();
 
     public void LaunchAll()
     {
         if (_pids.Count > 0) return;
 
-        var args = new List<string>();
-        if (openAsHost) args.Add("--open-as-host");
-        if (hideWindows) args.Add("--hide-windows");
+        var args = BuildArgs();
 
         WindowHelper.SetupEditorHeaderRestoreForSelf();
 
@@ -46,7 +60,7 @@ public class WorkerManager : MonoBehaviour
 
         for (int i = 0; i < Mathf.Max(0, instances); i++)
         {
-            var pid = ExeHelper.Launch(exeName, subfolder, outerFolder, args.ToArray());
+            var pid = ExeHelper.Launch(exeName, subfolder, outerFolder, args);
             if (pid > 0) _pids.Add(pid);
         }
 
@@ -70,5 +84,41 @@ public class WorkerManager : MonoBehaviour
         if (_pids.Count == 0) return;
         foreach (var pid in _pids) ExeHelper.Close(pid);
         _pids.Clear();
+    }
+
+    string[] BuildArgs()
+    {
+        var args = new List<string>();
+        if (openAsHost) args.Add("--open-as-host");
+        if (hideWindows) args.Add("--hide-windows");
+        return args.ToArray();
+    }
+
+    void LaunchOne()
+    {
+        var args = BuildArgs();
+        var pid = ExeHelper.Launch(exeName, subfolder, outerFolder, args);
+        if (pid <= 0) return;
+
+        _pids.Add(pid);
+
+        if (hideWindows)
+        {
+            var h = WindowHelper.WaitForMainWindow(pid, 8000);
+            if (h != IntPtr.Zero) WindowHelper.MinimizeWindows(new[] { h });
+        }
+    }
+
+    bool IsProcessAlive(int pid)
+    {
+        try
+        {
+            var p = Process.GetProcessById(pid);
+            return p != null && !p.HasExited;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
